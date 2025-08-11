@@ -240,7 +240,142 @@
   
   color-scheme: light;
 }
+/* Super Mario 8-bit Theme */
+.theme-mario {
+  --bg-primary: #5c94fc;
+  --bg-secondary: #ffd700;
+  --bg-tertiary: #ff6b00;
+  --bg-accent: #00aa00;
+  
+  --text-primary: #000000;
+  --text-secondary: #8b4513;
+  --text-tertiary: #654321;
+  --text-inverse: #ffffff;
+  
+  --border-primary: #000000;
+  --border-secondary: #000000;
+  --border-focus: #ff0000;
+  
+  --surface-elevated: #ffd700;
+  --surface-depressed: #ffaa00;
+  
+  --primary: #ff0000;
+  --primary-light: #ff6666;
+  --primary-dark: #cc0000;
+  
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  
+  /* Pixelated borders */
+  --radius-sm: 0px;
+  --radius-base: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-2xl: 0px;
+  
+  /* Thicker borders */
+  --shadow-sm: 3px 3px 0px #000000;
+  --shadow-base: 4px 4px 0px #000000;
+  --shadow-md: 5px 5px 0px #000000;
+  --shadow-lg: 6px 6px 0px #000000;
+  
+  color-scheme: light;
+}
 
+.theme-mario * {
+  border-radius: 0px !important;
+}
+
+/* Vibrant Colours Theme */
+.theme-vibrant {
+  --bg-primary: #fff8e1;
+  --bg-secondary: #ffe0b3;
+  --bg-tertiary: #ffd180;
+  --bg-accent: #ff9800;
+  
+  --text-primary: #d84315;
+  --text-secondary: #ff5722;
+  --text-tertiary: #ff8a65;
+  --text-inverse: #ffffff;
+  
+  --border-primary: #ff6f00;
+  --border-secondary: #ff8f00;
+  --border-focus: #e91e63;
+  
+  --surface-elevated: #ffffff;
+  --surface-depressed: #ffe0b3;
+  
+  --primary: #e91e63;
+  --primary-light: #f48fb1;
+  --primary-dark: #ad1457;
+  
+  --success: #4caf50;
+  --success-light: #c8e6c9;
+  --warning: #ff9800;
+  --warning-light: #ffe0b3;
+  --danger: #f44336;
+  --danger-light: #ffcdd2;
+  
+  color-scheme: light;
+}
+
+/* Neon Theme */
+.theme-neon {
+  --bg-primary: #0a0a0a;
+  --bg-secondary: #1a1a1a;
+  --bg-tertiary: #2a2a2a;
+  --bg-accent: #3a3a3a;
+  
+  --text-primary: #00ffff;
+  --text-secondary: #ff00ff;
+  --text-tertiary: #ffff00;
+  --text-inverse: #000000;
+  
+  --border-primary: #00ffff;
+  --border-secondary: #ff00ff;
+  --border-focus: #ffff00;
+  
+  --surface-elevated: #1a1a1a;
+  --surface-depressed: #0a0a0a;
+  
+  --primary: #ff0080;
+  --primary-light: #ff40a0;
+  --primary-dark: #cc0066;
+  
+  --success: #00ff00;
+  --success-light: #40ff40;
+  --warning: #ffff00;
+  --warning-light: #ffff80;
+  --danger: #ff4000;
+  --danger-light: #ff8040;
+  
+  /* Neon glow effects */
+  --shadow-sm: 0 0 5px currentColor;
+  --shadow-base: 0 0 10px currentColor;
+  --shadow-md: 0 0 15px currentColor;
+  --shadow-lg: 0 0 20px currentColor;
+  --shadow-xl: 0 0 25px currentColor;
+  
+  color-scheme: dark;
+}
+
+.theme-neon .btn {
+  text-shadow: 0 0 10px currentColor;
+  box-shadow: 0 0 10px currentColor, inset 0 0 10px rgba(255, 255, 255, 0.1);
+}
+
+.theme-neon .content-section {
+  border: 2px solid;
+  border-image: linear-gradient(45deg, #00ffff, #ff00ff, #ffff00, #00ffff) 1;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+}
+
+.theme-neon .task-item:hover,
+.theme-neon .priority-item:hover {
+  box-shadow: 0 0 15px currentColor;
+  text-shadow: 0 0 5px currentColor;
+}
 /* ===== Reset & Base Styles ===== */
 
 /* Modern CSS Reset */
