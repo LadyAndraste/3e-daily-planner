@@ -309,18 +309,50 @@
                 </div>
                 
                 <div class="priorities-container" id="prioritiesContainer">
+                                        <!-- VERVANG elke priority-item div met deze uitgebreide versie: -->
                     <div class="priority-item" data-priority="1">
-                        <div class="priority-indicator">1</div>
-                        <div class="priority-content">
-                            <input type="text" class="priority-input" placeholder="Most important task today..." data-index="0">
-                            <div class="priority-meta">
-                                <select class="energy-select" data-index="0">
-                                    <option value="low">🟢 Low Energy</option>
-                                    <option value="medium" selected>🟡 Medium Energy</option>
-                                    <option value="high">🔴 High Energy</option>
-                                </select>
-                            </div>
+                    <div class="priority-indicator">1</div>
+                    <div class="priority-content">
+                        <input type="text" class="priority-input" placeholder="Most important task today..." data-index="0">
+                        <div class="priority-meta">
+                        <div class="meta-row">
+                            <select class="energy-select" data-index="0">
+                            <option value="low">🟢 Low Energy</option>
+                            <option value="medium" selected>🟡 Medium Energy</option>
+                            <option value="high">🔴 High Energy</option>
+                            </select>
+                            <input type="number" class="time-estimate" placeholder="Min" min="1" max="480" data-index="0">
                         </div>
+                        <div class="meta-row">
+                            <input type="url" class="m365-link" placeholder="M365 bestandslink (optioneel)" data-index="0">
+                            <button class="btn-icon btn-test-link" onclick="testM365Link(0)" title="Test link" data-index="0">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                            </svg>
+                            </button>
+                        </div>
+                        </div>
+                    </div>
+                    <div class="priority-actions">
+                        <button class="btn-icon btn-edit" onclick="editPriority(0)" title="Edit details">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M11,4H4A2,2 0,0,0 2,6V18A2,2 0,0,0 4,20H16A2,2 0,0,0 18,18V13"></path>
+                            <path d="M18.5,2.5A2.12,2.12 0,0,1 21,4.62A2.12,2.12 0,0,1 18.5,6.74L10,15.25L6,16.25L7,12.25L15.5,3.75Z"></path>
+                        </svg>
+                        </button>
+                        <button class="btn-icon btn-focus" onclick="focusOnPriority(0)" title="Focus on this">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path d="M12,1v6M12,17v6M4.22,4.22l4.24,4.24M15.54,15.54l4.24,4.24M1,12h6M17,12h6M4.22,19.78l4.24-4.24M15.54,8.46l4.24-4.24"></path>
+                        </svg>
+                        </button>
+                        <div class="checkbox-container">
+                        <input type="checkbox" class="priority-checkbox" id="priority-0" data-index="0">
+                        <label for="priority-0" class="checkbox-label"></label>
+                        </div>
+                    </div>
+                    </div>
                         <div class="priority-actions">
                             <button class="btn-icon btn-focus" onclick="focusOnPriority(0)" title="Focus on this">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -345,21 +377,38 @@
                                     <option value="medium" selected>🟡 Medium Energy</option>
                                     <option value="high">🔴 High Energy</option>
                                 </select>
+                                <input type="number" class="time-estimate" placeholder="Min" min="1" max="480" data-index="0">
+                            </div>
+                                <div class="meta-row">
+                                    <input type="url" class="m365-link" placeholder="M365 bestandslink (optioneel)" data-index="0">
+                                    <button class="btn-icon btn-test-link" onclick="testM365Link(0)" title="Test link" data-index="0">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                                        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                                    </svg>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                         <div class="priority-actions">
-                            <button class="btn-icon btn-focus" onclick="focusOnPriority(1)" title="Focus on this">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <circle cx="12" cy="12" r="3"></circle>
-                                    <path d="M12,1v6M12,17v6M4.22,4.22l4.24,4.24M15.54,15.54l4.24,4.24M1,12h6M17,12h6M4.22,19.78l4.24-4.24M15.54,8.46l4.24-4.24"></path>
-                                </svg>
+                            <button class="btn-icon btn-edit" onclick="editPriority(0)" title="Edit details">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M11,4H4A2,2 0,0,0 2,6V18A2,2 0,0,0 4,20H16A2,2 0,0,0 18,18V13"></path>
+                                <path d="M18.5,2.5A2.12,2.12 0,0,1 21,4.62A2.12,2.12 0,0,1 18.5,6.74L10,15.25L6,16.25L7,12.25L15.5,3.75Z"></path>
+                            </svg>
+                            </button>
+                            <button class="btn-icon btn-focus" onclick="focusOnPriority(0)" title="Focus on this">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="3"></circle>
+                                <path d="M12,1v6M12,17v6M4.22,4.22l4.24,4.24M15.54,15.54l4.24,4.24M1,12h6M17,12h6M4.22,19.78l4.24-4.24M15.54,8.46l4.24-4.24"></path>
+                            </svg>
                             </button>
                             <div class="checkbox-container">
-                                <input type="checkbox" class="priority-checkbox" id="priority-1" data-index="1">
-                                <label for="priority-1" class="checkbox-label"></label>
+                            <input type="checkbox" class="priority-checkbox" id="priority-0" data-index="0">
+                            <label for="priority-0" class="checkbox-label"></label>
                             </div>
                         </div>
-                    </div>
+                        
                     
                     <div class="priority-item" data-priority="3">
                         <div class="priority-indicator">3</div>

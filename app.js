@@ -355,7 +355,35 @@ class ThreeEPlannerApp {
     this.stateManager.updatePriority(index, { energy });
     this.analyticsManager.trackEvent('priority_energy_updated', { index, energy });
   }
+updatePriorityDetails(index, details) {
+  const priority = this.stateManager.state.priorities[index];
+  if (!priority) return;
+  
+  this.stateManager.updatePriority(index, details);
+  this.renderPriorities();
+  
+  // Check for quick action if time estimate is ≤15 minutes
+  if (details.estimatedMinutes && details.estimatedMinutes <= 15 && priority.text.trim()) {
+    this.showQuickActionModal(priority, index, 'priority');
+  }
+  
+  this.analyticsManager.trackEvent('priority_details_updated', { index, ...details });
+}
 
+openM365Link(index) {
+  const priority = this.stateManager.state.priorities[index];
+  if (priority && priority.m365Link) {
+    window.open(priority.m365Link, '_blank');
+    this.analyticsManager.trackEvent('m365_link_opened', { type: 'priority', index });
+  }
+}
+
+editPriority(index) {
+  const priority = this.stateManager.state.priorities[index];
+  if (!priority) return;
+  
+  this.showPriorityEditModal(priority, index);
+}
   focusOnPriority(index) {
     const priority = this.stateManager.state.priorities[index];
     if (!priority || !priority.text.trim()) {
@@ -1272,10 +1300,25 @@ class StateManager {
       currentEnergy: 'medium',
       
       priorities: [
-        { id: 1, text: '', completed: false, energy: 'medium' },
-        { id: 2, text: '', completed: false, energy: 'medium' },
-        { id: 3, text: '', completed: false, energy: 'medium' }
-      ],
+  { 
+    id: 1, text: '', completed: false, energy: 'medium',
+    estimatedMinutes: null, m365Link: '', createdAt: new Date().toISOString(),
+    completedAt: null, isRecurring: false, recurringPattern: null,
+    category: '', notes: ''
+  },
+  { 
+    id: 2, text: '', completed: false, energy: 'medium',
+    estimatedMinutes: null, m365Link: '', createdAt: new Date().toISOString(),
+    completedAt: null, isRecurring: false, recurringPattern: null,
+    category: '', notes: ''
+  },
+  { 
+    id: 3, text: '', completed: false, energy: 'medium',
+    estimatedMinutes: null, m365Link: '', createdAt: new Date().toISOString(),
+    completedAt: null, isRecurring: false, recurringPattern: null,
+    category: '', notes: ''
+  }
+],
       
       tasks: [],
       timeBlocks: [],
