@@ -220,30 +220,12 @@ class ThreeEPlannerApp {
   /* ===== Core UI Updates ===== */
 
   renderDashboard() {
-  console.log('Rendering dashboard with state:', this.stateManager.state);
-  
-  // Render all components
-  this.renderPriorities();
-  this.renderTasks();
-  this.renderTimeBlocks();
-  this.renderThoughts();
-  
-  // Force stats update after rendering
-  setTimeout(() => {
+    this.renderPriorities();
+    this.renderTasks();
+    this.renderTimeBlocks();
+    this.renderThoughts();
     this.updateStats();
-  }, 100);
-  
-  // Setup periodic stats updates
-  if (this.statsUpdateInterval) {
-    clearInterval(this.statsUpdateInterval);
   }
-  
-  this.statsUpdateInterval = setInterval(() => {
-    this.updateStats();
-  }, 10000); // Update every 10 seconds
-  
-  console.log('Dashboard rendered successfully');
-}
 
   updateTimeDisplay() {
     const now = new Date();
@@ -282,83 +264,23 @@ class ThreeEPlannerApp {
     const state = this.stateManager.state;
     const today = new Date().toDateString();
     
-    console.log('Updating stats with state:', state);
+    // Calculate priorities completed
+    const completedPriorities = state.priorities.filter(p => p.completed && p.text.trim()).length;
+    const totalPriorities = state.priorities.filter(p => p.text.trim()).length;
     
-    // Calculate priorities completed - FIXED
-    const completedPriorities = state.priorities.filter(p => {
-      return p && p.text && p.text.trim() && p.completed === true;
-    }).length;
+    // Calculate tasks completed today
+    const tasksCompletedToday = state.tasks.filter(t => 
+      t.completed && new Date(t.completedAt || t.createdAt).toDateString() === today
+    ).length;
     
-    const totalPriorities = state.priorities.filter(p => {
-      return p && p.text && p.text.trim();
-    }).length;
+    // Calculate focus time today
+    const focusTimeToday = this.analyticsManager.getFocusTimeForDate(today);
     
-    console.log('Priorities:', completedPriorities, '/', totalPriorities);
-    
-    // Calculate tasks completed today - FIXED
-    const tasksCompletedToday = state.tasks.filter(t => {
-      if (!t || !t.completed) return false;
-      
-      const completedDate = t.completedAt ? new Date(t.completedAt) : new Date(t.createdAt);
-      return completedDate.toDateString() === today;
-    }).length;
-    
-    console.log('Tasks completed today:', tasksCompletedToday);
-    
-    // Calculate focus time today - FIXED
-    let focusTimeToday = 0;
-    if (this.analyticsManager && this.analyticsManager.analytics && this.analyticsManager.analytics.dailyStats) {
-      const todayStats = this.analyticsManager.analytics.dailyStats[today];
-      focusTimeToday = todayStats ? (todayStats.focusTime || 0) : 0;
-    }
-    
-    // Fallback: check state analytics
-    if (focusTimeToday === 0 && state.analytics && state.analytics.dailyFocusTime) {
-      focusTimeToday = state.analytics.dailyFocusTime;
-    }
-    
-    console.log('Focus time today:', focusTimeToday);
-    
-    // Get current streak - FIXED
-    let currentStreak = 0;
-    if (state.analytics && typeof state.analytics.currentStreak === 'number') {
-      currentStreak = state.analytics.currentStreak;
-    } else if (state.analytics && state.analytics.currentStreak) {
-      currentStreak = parseInt(state.analytics.currentStreak) || 0;
-    }
-    
-    // If we have activity today but no streak, set to 1
-    if (currentStreak === 0 && (completedPriorities > 0 || tasksCompletedToday > 0 || focusTimeToday > 0)) {
-      currentStreak = 1;
-      // Update state
-      if (!state.analytics) state.analytics = {};
-      state.analytics.currentStreak = 1;
-      this.stateManager.saveState();
-    }
-    
-    console.log('Current streak:', currentStreak);
-    
-    // Update UI elements - FORCE UPDATE
-    this.forceUpdateElement('.daily-overview .overview-stat:nth-child(1) .stat-value', `${completedPriorities}/${totalPriorities}`);
-    this.forceUpdateElement('.daily-overview .overview-stat:nth-child(2) .stat-value', tasksCompletedToday.toString());
-    this.forceUpdateElement('.daily-overview .overview-stat:nth-child(3) .stat-value', `${Math.round(focusTimeToday)}m`);
-    this.forceUpdateElement('.daily-overview .overview-stat:nth-child(4) .stat-value', currentStreak.toString());
-    
-    console.log('Stats updated successfully');
-  }
-  
-  // Helper function for forced element updates
-  forceUpdateElement(selector, content) {
-    const element = document.querySelector(selector);
-    if (element) {
-      element.textContent = content;
-      element.style.color = 'var(--primary)'; // Flash update
-      setTimeout(() => {
-        element.style.color = '';
-      }, 200);
-    } else {
-      console.warn('Could not find element:', selector);
-    }
+    // Update UI
+    this.updateElement('priorityStat .stat-value', `${completedPriorities}/${totalPriorities}`);
+    this.updateElement('taskStat .stat-value', tasksCompletedToday.toString());
+    this.updateElement('focusStat .stat-value', `${Math.round(focusTimeToday)}m`);
+    this.updateElement('streakStat .stat-value', state.analytics.currentStreak.toString());
   }
 
   updateElement(selector, content) {
@@ -376,33 +298,10 @@ class ThreeEPlannerApp {
     const priorityCheckboxes = document.querySelectorAll('.priority-checkbox');
     const energySelects = document.querySelectorAll('.energy-select');
     
-    // Clear existing event listeners to prevent duplicates
-    priorityInputs.forEach(input => {
-      const newInput = input.cloneNode(true);
-      input.parentNode.replaceChild(newInput, input);
-    });
-    
-    priorityCheckboxes.forEach(checkbox => {
-      const newCheckbox = checkbox.cloneNode(true);
-      checkbox.parentNode.replaceChild(newCheckbox, checkbox);
-    });
-    
-    // Re-query after replacement
-    const newInputs = document.querySelectorAll('.priority-input');
-    const newCheckboxes = document.querySelectorAll('.priority-checkbox');
-    const newSelects = document.querySelectorAll('.energy-select');
-    
-    // Setup inputs
-    newInputs.forEach((input, index) => {
+    priorityInputs.forEach((input, index) => {
       if (state.priorities[index]) {
-        input.value = state.priorities[index].text || '';
-        
-        // Add event listeners
-        input.addEventListener('blur', () => {
-          this.updatePriorityText(index, input.value);
-          this.updateStats(); // Force stats update
-        });
-        
+        input.value = state.priorities[index].text;
+        input.addEventListener('blur', () => this.updatePriorityText(index, input.value));
         input.addEventListener('keypress', (e) => {
           if (e.key === 'Enter') {
             input.blur();
@@ -411,32 +310,19 @@ class ThreeEPlannerApp {
       }
     });
     
-    // Setup checkboxes  
-    newCheckboxes.forEach((checkbox, index) => {
+    priorityCheckboxes.forEach((checkbox, index) => {
       if (state.priorities[index]) {
-        checkbox.checked = state.priorities[index].completed || false;
-        
-        // Add event listener
-        checkbox.addEventListener('change', (e) => {
-          console.log(`Priority ${index} checkbox changed to:`, e.target.checked);
-          this.togglePriority(index);
-          this.updateStats(); // Force stats update
-        });
+        checkbox.checked = state.priorities[index].completed;
+        checkbox.addEventListener('change', () => this.togglePriority(index));
       }
     });
     
-    // Setup energy selects
-    newSelects.forEach((select, index) => {
+    energySelects.forEach((select, index) => {
       if (state.priorities[index]) {
         select.value = state.priorities[index].energy || 'medium';
-        
-        select.addEventListener('change', () => {
-          this.updatePriorityEnergy(index, select.value);
-        });
+        select.addEventListener('change', () => this.updatePriorityEnergy(index, select.value));
       }
     });
-    
-    console.log('Priority handlers reattached', state.priorities);
   }
 
   updatePriorityText(index, text) {
@@ -449,91 +335,19 @@ class ThreeEPlannerApp {
   }
 
   togglePriority(index) {
-    console.log(`Toggling priority ${index}`);
-    
     const priority = this.stateManager.state.priorities[index];
-    if (!priority) {
-      console.warn('No priority found at index:', index);
-      return;
-    }
+    if (!priority || !priority.text.trim()) return;
     
-    if (!priority.text || !priority.text.trim()) {
-      console.warn('Priority has no text, not toggling');
-      this.toastManager.show('Please add priority text first', 'warning');
-      
-      // Reset checkbox
-      const checkbox = document.getElementById(`priority-${index}`);
-      if (checkbox) checkbox.checked = false;
-      return;
-    }
-    
-    const wasCompleted = priority.completed;
-    const newCompleted = !wasCompleted;
-    
-    console.log(`Priority ${index}: ${wasCompleted} → ${newCompleted}`);
-    
-    // Update state
     this.stateManager.updatePriority(index, { 
-      completed: newCompleted,
-      completedAt: newCompleted ? new Date().toISOString() : null
+      completed: !priority.completed,
+      completedAt: !priority.completed ? new Date().toISOString() : null
     });
     
-    // Update visual state immediately
-    const priorityItem = document.querySelector(`[data-priority="${index + 1}"]`);
-    if (priorityItem) {
-      if (newCompleted) {
-        priorityItem.classList.add('completed');
-      } else {
-        priorityItem.classList.remove('completed');
-      }
-    }
+    this.updateStats();
     
-    // Show feedback
-    if (newCompleted) {
-      this.toastManager.show(`🎯 Priority completed! ${priority.text}`, 'success');
+    if (!priority.completed) {
+      this.toastManager.show(`Priority completed! 🎯 ${priority.text}`, 'success');
       this.analyticsManager.trackAchievement('priority_completed');
-      
-      // Update streak if this is first completion today
-      this.checkAndUpdateStreak();
-    } else {
-      this.toastManager.show('Priority unmarked', 'info');
-    }
-    
-    // Force update stats
-    setTimeout(() => {
-      this.updateStats();
-    }, 100);
-    
-    console.log('Priority toggle completed');
-  }
-  
-  // Helper function to check and update streak
-  checkAndUpdateStreak() {
-    const state = this.stateManager.state;
-    const today = new Date().toDateString();
-    
-    // Check if we have any completions today
-    const prioritiesCompletedToday = state.priorities.some(p => 
-      p.completed && p.text && p.text.trim()
-    );
-    
-    const tasksCompletedToday = state.tasks.some(t => {
-      if (!t.completed) return false;
-      const completedDate = t.completedAt ? new Date(t.completedAt) : new Date(t.createdAt);
-      return completedDate.toDateString() === today;
-    });
-    
-    if (prioritiesCompletedToday || tasksCompletedToday) {
-      if (!state.analytics) state.analytics = {};
-      
-      // If no streak yet today, start one
-      if (!state.analytics.currentStreak || state.analytics.currentStreak === 0) {
-        state.analytics.currentStreak = 1;
-        state.analytics.lastActiveDate = today;
-        this.stateManager.saveState();
-        
-        this.toastManager.show('🔥 Streak started! Keep going!', 'success');
-      }
     }
   }
 
@@ -1725,58 +1539,7 @@ class StateManager {
     this.state = this.getDefaultState();
     this.saveState();
   }
-  // Plaats dit VOOR de laatste } van de ThreeEPlannerApp class
-  
-  /* ===== DEBUG FUNCTIONS ===== */
-  
-  debugState() {
-    console.log('=== DEBUG STATE ===');
-    console.log('Full state:', this.stateManager.state);
-    console.log('Priorities:', this.stateManager.state.priorities);
-    console.log('Tasks:', this.stateManager.state.tasks);
-    console.log('Analytics:', this.stateManager.state.analytics);
-    console.log('==================');
-  }
-  
-  forceStatsUpdate() {
-    console.log('Forcing stats update...');
-    this.updateStats();
-    this.toastManager.show('Stats updated manually', 'info');
-  }
-  
-  resetAnalytics() {
-    console.log('Resetting analytics...');
-    this.stateManager.state.analytics = {
-      currentStreak: 1,
-      totalFocusTime: 0,
-      totalTasksCompleted: 0,
-      dailyStats: {}
-    };
-    this.stateManager.saveState();
-    this.updateStats();
-    this.toastManager.show('Analytics reset', 'info');
-  }
-}  // ← Dit is de sluit-bracket van de ThreeEPlannerApp class
-
-// Plaats de globale functies HIER (na de class)
-window.debugApp = function() {
-  if (window.app) {
-    window.app.debugState();
-  }
-};
-
-window.forceStatsUpdate = function() {
-  if (window.app) {
-    window.app.forceStatsUpdate();
-  }
-};
-
-window.resetAnalytics = function() {
-  if (window.app) {
-    window.app.resetAnalytics();
-  }
-};
-
+}
 
 /* ===== Focus Management System ===== */
 
