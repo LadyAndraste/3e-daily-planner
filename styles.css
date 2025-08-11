@@ -811,7 +811,35 @@ p {
 [data-energy="high"] .energy-level {
   color: var(--energy-high-dark, var(--text-primary));
 }
+/* Energy Selector Dropdown */
+.energy-selector-container {
+  display: flex;
+  align-items: center;
+}
 
+.energy-selector {
+  padding: var(--space-3) var(--space-4);
+  background: var(--bg-primary);
+  border: 2px solid var(--border-primary);
+  border-radius: var(--radius-lg);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  min-height: 44px;
+}
+
+.energy-selector:hover {
+  border-color: var(--primary);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.energy-selector:focus {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
 /* Date/Time Display */
 .datetime-display {
   text-align: right;
