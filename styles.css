@@ -3033,48 +3033,148 @@ p {
   margin-bottom: var(--space-4);
   opacity: 0.6;
 }
-/* Emergency Responsive Fix */
-* {
+/* ===== DEFINITIEVE RESPONSIVE FIX ===== */
+
+/* Force box-sizing voor alles */
+*, *::before, *::after {
   box-sizing: border-box !important;
 }
 
-body {
+/* Voorkom horizontal scroll */
+html, body {
   overflow-x: hidden !important;
+  max-width: 100vw !important;
 }
 
+/* App container - altijd goed gecentreerd */
 .app-container {
   width: 100% !important;
-  max-width: 100vw !important;
-  padding-left: 8px !important;
-  padding-right: 8px !important;
+  max-width: min(1400px, 100vw) !important;
+  margin: 0 auto !important;
+  padding: clamp(8px, 2vw, 16px) !important;
 }
 
+/* Tablet & Mobile Fixes */
 @media (max-width: 768px) {
-  .header-main {
-    flex-direction: column !important;
+  /* Header aanpassingen */
+  .app-header {
+    padding: 12px !important;
   }
   
+  .header-main {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+  }
+  
+  .app-title {
+    font-size: 1.5rem !important;
+    text-align: center !important;
+  }
+  
+  .header-status {
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+  
+  .energy-selector {
+    width: 100% !important;
+    min-width: unset !important;
+  }
+  
+  .datetime-display {
+    text-align: center !important;
+  }
+  
+  /* Priority items - stack vertical */
   .priority-item {
     flex-direction: column !important;
     align-items: stretch !important;
+    gap: 12px !important;
+    padding: 12px !important;
+  }
+  
+  .priority-indicator {
+    align-self: flex-start !important;
+  }
+  
+  .priority-content {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+  
+  .priority-input {
+    width: 100% !important;
+    font-size: 16px !important; /* Voorkom zoom op iOS */
   }
   
   .priority-actions {
-    margin-top: 8px !important;
     justify-content: space-between !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
   }
   
+  /* Content grid - single column */
+  .content-grid {
+    display: block !important;
+    gap: 16px !important;
+  }
+  
+  .content-section {
+    margin-bottom: 16px !important;
+    padding: 12px !important;
+  }
+  
+  /* Task input - vertical stack */
+  .task-input-container {
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+  
+  .task-input {
+    font-size: 16px !important; /* Voorkom zoom */
+  }
+  
+  /* Daily overview - 2 columns */
   .daily-overview {
     grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+  }
+  
+  /* FAB positioning */
+  .fab-container {
+    bottom: 16px !important;
+    right: 16px !important;
   }
 }
 
+/* Small Mobile Fixes */
 @media (max-width: 480px) {
+  .app-container {
+    padding: 8px !important;
+  }
+  
   .daily-overview {
     grid-template-columns: 1fr !important;
   }
   
-  .app-container {
-    padding: 4px !important;
+  .priority-item,
+  .task-item,
+  .content-section {
+    padding: 8px !important;
+  }
+  
+  /* Bottom nav labels verbergen */
+  .nav-label {
+    display: none !important;
+  }
+}
+
+/* Touch targets verbeteren */
+@media (pointer: coarse) {
+  .btn, .fab, .checkbox-label, .filter-btn, .btn-icon {
+    min-height: 44px !important;
+    min-width: 44px !important;
+    touch-action: manipulation !important;
   }
 }
