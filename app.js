@@ -251,30 +251,15 @@ class ThreeEPlannerApp {
   }
 
   updateEnergyDisplay() {
-    const state = this.stateManager.state;
-    const energyIndicator = document.getElementById('energyIndicator');
-    const energyLevel = document.getElementById('energyLevel');
-    const energyIcon = document.getElementById('energyIcon');
-    
-    if (!energyLevel || !energyIndicator || !energyIcon) return;
-    
-    const energyConfig = {
-      low: { label: 'Low', icon: '🟢', class: 'low' },
-      medium: { label: 'Medium', icon: '🟡', class: 'medium' },
-      high: { label: 'High', icon: '🔴', class: 'high' },
-      crisis: { label: 'Overwhelmed', icon: '🆘', class: 'crisis' }
-    };
-    
-    const config = energyConfig[state.currentEnergy] || energyConfig.medium;
-    
-    energyLevel.textContent = config.label;
-    energyIcon.textContent = config.icon;
-    document.body.setAttribute('data-energy', config.class);
-    
-    // Update energy indicator styling
-    energyIndicator.className = `energy-indicator energy-${config.class}`;
+  const state = this.stateManager.state;
+  const selector = document.getElementById('energySelector');
+  
+  if (selector) {
+    selector.value = state.currentEnergy;
   }
-
+  
+  document.body.setAttribute('data-energy', state.currentEnergy);
+}
   updateStats() {
     const state = this.stateManager.state;
     const today = new Date().toDateString();
@@ -3462,3 +3447,8 @@ if (typeof module !== 'undefined' && module.exports) {
     PerformanceMonitor
   };
 }
+window.setEnergyLevel = function(energy) {
+  if (window.app) {
+    window.app.setEnergyLevel(energy);
+  }
+};
