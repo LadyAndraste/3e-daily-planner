@@ -1725,7 +1725,58 @@ class StateManager {
     this.state = this.getDefaultState();
     this.saveState();
   }
-}
+  // Plaats dit VOOR de laatste } van de ThreeEPlannerApp class
+  
+  /* ===== DEBUG FUNCTIONS ===== */
+  
+  debugState() {
+    console.log('=== DEBUG STATE ===');
+    console.log('Full state:', this.stateManager.state);
+    console.log('Priorities:', this.stateManager.state.priorities);
+    console.log('Tasks:', this.stateManager.state.tasks);
+    console.log('Analytics:', this.stateManager.state.analytics);
+    console.log('==================');
+  }
+  
+  forceStatsUpdate() {
+    console.log('Forcing stats update...');
+    this.updateStats();
+    this.toastManager.show('Stats updated manually', 'info');
+  }
+  
+  resetAnalytics() {
+    console.log('Resetting analytics...');
+    this.stateManager.state.analytics = {
+      currentStreak: 1,
+      totalFocusTime: 0,
+      totalTasksCompleted: 0,
+      dailyStats: {}
+    };
+    this.stateManager.saveState();
+    this.updateStats();
+    this.toastManager.show('Analytics reset', 'info');
+  }
+}  // ← Dit is de sluit-bracket van de ThreeEPlannerApp class
+
+// Plaats de globale functies HIER (na de class)
+window.debugApp = function() {
+  if (window.app) {
+    window.app.debugState();
+  }
+};
+
+window.forceStatsUpdate = function() {
+  if (window.app) {
+    window.app.forceStatsUpdate();
+  }
+};
+
+window.resetAnalytics = function() {
+  if (window.app) {
+    window.app.resetAnalytics();
+  }
+};
+
 
 /* ===== Focus Management System ===== */
 
@@ -3616,55 +3667,7 @@ if ('serviceWorker' in navigator) {
       });
   });
 }
-/* ===== DEBUG FUNCTIONS ===== */
-  
-  debugState() {
-    console.log('=== DEBUG STATE ===');
-    console.log('Full state:', this.stateManager.state);
-    console.log('Priorities:', this.stateManager.state.priorities);
-    console.log('Tasks:', this.stateManager.state.tasks);
-    console.log('Analytics:', this.stateManager.state.analytics);
-    console.log('==================');
-  }
-  
-  forceStatsUpdate() {
-    console.log('Forcing stats update...');
-    this.updateStats();
-    this.toastManager.show('Stats updated manually', 'info');
-  }
-  
-  resetAnalytics() {
-    console.log('Resetting analytics...');
-    this.stateManager.state.analytics = {
-      currentStreak: 1,
-      totalFocusTime: 0,
-      totalTasksCompleted: 0,
-      dailyStats: {}
-    };
-    this.stateManager.saveState();
-    this.updateStats();
-    this.toastManager.show('Analytics reset', 'info');
-  }
-}
 
-// Global debug functions
-window.debugApp = function() {
-  if (window.app) {
-    window.app.debugState();
-  }
-};
-
-window.forceStatsUpdate = function() {
-  if (window.app) {
-    window.app.forceStatsUpdate();
-  }
-};
-
-window.resetAnalytics = function() {
-  if (window.app) {
-    window.app.resetAnalytics();
-  }
-};
 /* ===== Export for Module Systems ===== */
 
 if (typeof module !== 'undefined' && module.exports) {
