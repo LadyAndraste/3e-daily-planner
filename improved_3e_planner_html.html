@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3e Daily Command Center</title>
+    
+    <!-- PWA Configuration -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="3e Planner">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- External Stylesheets -->
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Preload Critical Resources -->
+    <link rel="preload" href="app.js" as="script">
+</head>
+<body class="theme-focus" data-energy="medium" data-context="overview">
+    <!-- Skip to Main Content (Accessibility) -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="loading-screen">
+        <div class="loading-content">
+            <div class="loading-logo">🧠</div>
+            <div class="loading-text">Initializing 3e Command Center...</div>
+            <div class="loading-progress">
+                <div class="loading-bar" id="loadingBar"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Global Keyboard Shortcuts Overlay -->
+    <div id="shortcutsOverlay" class="shortcuts-overlay" role="dialog" aria-labelledby="shortcuts-title">
+        <div class="shortcuts-content">
+            <div class="shortcuts-header">
+                <h2 id="shortcuts-title">⌨️ Keyboard Shortcuts</h2>
+                <button class="btn-icon" onclick="toggleShortcutsOverlay()" aria-label="Close shortcuts">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div id="shortcutsGrid" class="shortcuts-grid"></div>
+        </div>
+    </div>
+
+    <!-- Command Palette -->
+    <div id="commandPalette" class="command-palette" role="dialog" aria-labelledby="command-title">
+        <div class="command-header">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="21 21l-4.35-4.35"></path>
+            </svg>
+            <input 
+                type="text" 
+                id="commandInput" 
+                class="command-input" 
+                placeholder="Type a command or search..."
+                aria-label="Command input"
+                autocomplete="off"
+                spellcheck="false"
+            >
+            <kbd class="kbd">Esc</kbd>
+        </div>
+        <div id="commandResults" class="command-results" role="listbox"></div>
+        <div class="command-footer">
+            <div class="command-hint">
+                <kbd class="kbd">↑↓</kbd> Navigate
+                <kbd class="kbd">Enter</kbd> Execute
+                <kbd class="kbd">Esc</kbd> Close
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Capture -->
+    <div id="quickCapture" class="quick-capture" role="dialog" aria-labelledby="capture-title">
+        <div class="capture-header">
+            <div class="capture-icon">💭</div>
+            <h3 id="capture-title">Quick Thought Capture</h3>
+        </div>
+        <div class="capture-form">
+            <textarea 
+                id="captureInput" 
+                class="capture-textarea"
+                placeholder="What's on your mind? (This will be saved for later review)"
+                aria-label="Quick thought capture"
+                rows="3"
+            ></textarea>
+            <div class="capture-actions">
+                <button class="btn btn-primary" onclick="saveCapturedThought()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20,6 9,17 4,12"></polyline>
+                    </svg>
+                    Save Thought
+                </button>
+                <button class="btn btn-ghost" onclick="toggleQuickCapture()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast Container -->
+    <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+    <!-- Focus Mode Overlay -->
+    <div id="focusOverlay" class="focus-overlay" role="dialog" aria-labelledby="focus-title">
+        <div class="focus-content">
+            <div class="focus-header">
+                <div class="focus-icon">🎯</div>
+                <h2 id="focus-title">Deep Focus Mode</h2>
+                <div class="focus-subtitle">Single-task concentration environment</div>
+            </div>
+            
+            <div class="focus-task-card" id="focusTaskCard">
+                <div class="focus-task-title" id="focusTaskTitle">Select a task to focus on</div>
+                <div class="focus-task-details" id="focusTaskDetails"></div>
+                <div class="focus-task-meta" id="focusTaskMeta"></div>
+            </div>
+
+            <div class="focus-timer" id="focusTimer">
+                <div class="timer-display">
+                    <div class="timer-time" id="timerTime">25:00</div>
+                    <div class="timer-label" id="timerLabel">Focus Time</div>
+                </div>
+                <div class="timer-controls">
+                    <button class="btn-timer" id="timerPlayPause" onclick="toggleFocusTimer()">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="5,3 19,12 5,21"></polygon>
+                        </svg>
+                    </button>
+                    <button class="btn-timer" onclick="resetFocusTimer()">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="1,4 1,10 7,10"></polyline>
+                            <path d="M3.51,15a9,9 0,0,0,13.48-12.5"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="focus-actions">
+                <button class="btn btn-primary" onclick="startFocusSession()" id="startFocusBtn">
+                    ✨ Begin Focus Session
+                </button>
+                <button class="btn btn-secondary" onclick="showFocusHelp()">
+                    ❓ Need Help Getting Started?
+                </button>
+                <button class="btn btn-outline" onclick="exitFocusMode()">
+                    ← Return to Overview
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Crisis/Overwhelm Mode -->
+    <div id="calmMode" class="calm-overlay" role="dialog" aria-labelledby="calm-title">
+        <div class="calm-content">
+            <div class="calm-header">
+                <div class="calm-icon">🧘</div>
+                <h2 id="calm-title">Overwhelm Recovery</h2>
+                <div class="calm-subtitle">When everything feels too much</div>
+            </div>
+            
+            <div class="calm-breathing" id="breathingGuide">
+                <div class="breathing-circle">
+                    <div class="breathing-text" id="breathingText">Breathe</div>
+                </div>
+            </div>
+
+            <div class="calm-action-card">
+                <div class="action-label">Just do this one thing:</div>
+                <div class="action-text" id="calmActionText">Take three deep breaths</div>
+            </div>
+
+            <div class="calm-actions">
+                <button class="btn btn-success" onclick="completeCalmAction()">
+                    ✅ I did it
+                </button>
+                <button class="btn btn-secondary" onclick="getNextCalmAction()">
+                    🔄 Give me something else
+                </button>
+                <button class="btn btn-outline" onclick="exitCalmMode()">
+                    🏠 Return to overview
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Action Button -->
+    <div class="fab-container">
+        <button class="fab fab-main" id="fabMain" onclick="toggleFabMenu()" aria-label="Main actions menu">
+            <svg class="fab-icon fab-icon-plus" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            <svg class="fab-icon fab-icon-close" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        </button>
+        
+        <div class="fab-menu" id="fabMenu">
+            <button class="fab fab-action" onclick="addNewTask()" title="Add Task (T)" aria-label="Add new task">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9,11 12,14 22,4"></polyline>
+                    <path d="M21,12v7a2,2 0,0,1-2,2H5a2,2 0,0,1-2-2V5a2,2 0,0,1,2-2h11"></path>
+                </svg>
+                <span class="fab-tooltip">Add Task</span>
+            </button>
+            
+            <button class="fab fab-action" onclick="enterFocusMode()" title="Focus Mode (F)" aria-label="Enter focus mode">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M12,1v6M12,17v6M4.22,4.22l4.24,4.24M15.54,15.54l4.24,4.24M1,12h6M17,12h6M4.22,19.78l4.24-4.24M15.54,8.46l4.24-4.24"></path>
+                </svg>
+                <span class="fab-tooltip">Focus Mode</span>
+            </button>
+            
+            <button class="fab fab-action" onclick="toggleQuickCapture()" title="Quick Capture (D)" aria-label="Quick thought capture">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9,12l2,2l4,-4"></path>
+                    <path d="M21,12c0,4.97 -4.03,9 -9,9c-1.6,0 -3.1,-0.42 -4.39,-1.16L3,21l1.16,-4.61C3.42,15.1 3,13.6 3,12c0,-4.97 4.03,-9 9,-9s9,4.03 9,9Z"></path>
+                </svg>
+                <span class="fab-tooltip">Quick Capture</span>
+            </button>
+            
+            <button class="fab fab-action fab-calm" onclick="enterCalmMode()" title="Overwhelm Help (C)" aria-label="Overwhelm recovery mode">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12,2C6.48,2 2,6.48 2,12s4.48,10 10,10s10,-4.48 10,-10S17.52,2 12,2zM13,17h-2v-6h2v6zM13,9h-2V7h2v2z"></path>
+                </svg>
+                <span class="fab-tooltip">Need Help?</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Application Container -->
+    <div class="app-container">
+        <!-- Header with Status and Quick Controls -->
+        <header class="app-header">
+            <div class="header-main">
+                <div class="header-identity">
+                    <h1 class="app-title">
+                        <span class="app-icon">🧠</span>
+                        3e Command Center
+                    </h1>
+                    <div class="app-subtitle">Optimized for gifted, ADHD & ASD minds</div>
+                </div>
+                
+                <div class="header-status">
+                    <div class="energy-indicator" id="energyIndicator" onclick="cycleEnergyLevel()" role="button" aria-label="Current energy level" tabindex="0">
+                        <div class="energy-icon" id="energyIcon">⚡</div>
+                        <div class="energy-text">
+                            <div class="energy-level" id="energyLevel">Medium</div>
+                            <div class="energy-label">Energy</div>
+                        </div>
+                    </div>
+                    
+                    <div class="datetime-display">
+                        <div class="current-time" id="currentTime"></div>
+                        <div class="current-date" id="currentDate"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Daily Overview Stats -->
+            <div class="daily-overview">
+                <div class="overview-stat" id="priorityStat">
+                    <div class="stat-value">0/3</div>
+                    <div class="stat-label">Priorities</div>
+                </div>
+                <div class="overview-stat" id="taskStat">
+                    <div class="stat-value">0</div>
+                    <div class="stat-label">Tasks Done</div>
+                </div>
+                <div class="overview-stat" id="focusStat">
+                    <div class="stat-value">0m</div>
+                    <div class="stat-label">Focus Time</div>
+                </div>
+                <div class="overview-stat" id="streakStat">
+                    <div class="stat-value">0</div>
+                    <div class="stat-label">Day Streak</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main id="main-content" class="main-content">
+            <!-- Today's Priorities Section -->
+            <section class="content-section priority-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <span class="section-icon">🎯</span>
+                        Today's Priorities
+                    </h2>
+                    <button class="btn btn-outline btn-sm" onclick="planPriorities()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M11,4H4A2,2 0,0,0 2,6V18A2,2 0,0,0 4,20H16A2,2 0,0,0 18,18V13"></path>
+                            <path d="M18.5,2.5A2.12,2.12 0,0,1 21,4.62A2.12,2.12 0,0,1 18.5,6.74L10,15.25L6,16.25L7,12.25L15.5,3.75Z"></path>
+                        </svg>
+                        Plan Day
+                    </button>
+                </div>
+                
+                <div class="priorities-container" id="prioritiesContainer">
+                    <div class="priority-item" data-priority="1">
+                        <div class="priority-indicator">1</div>
+                        <div class="priority-content">
+                            <input type="text" class="priority-input" placeholder="Most important task today..." data-index="0">
+                            <div class="priority-meta">
+                                <select class="energy-select" data-index="0">
+                                    <option value="low">🟢 Low Energy</option>
+                                    <option value="medium" selected>🟡 Medium Energy</option>
+                                    <option value="high">🔴 High Energy</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="priority-actions">
+                            <button class="btn-icon btn-focus" onclick="focusOnPriority(0)" title="Focus on this">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                    <path d="M12,1v6M12,17v6M4.22,4.22l4.24,4.24M15.54,15.54l4.24,4.24M1,12h6M17,12h6M4.22,19.78l4.24-4.24M15.54,8.46l4.24-4.24"></path>
+                                </svg>
+                            </button>
+                            <div class="checkbox-container">
+                                <input type="checkbox" class="priority-checkbox" id="priority-0" data-index="0">
+                                <label for="priority-0" class="checkbox-label"></label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="priority-item" data-priority="2">
+                        <div class="priority-indicator">2</div>
+                        <div class="priority-content">
+                            <input type="text" class="priority-input" placeholder="Second most important..." data-index="1">
+                            <div class="priority-meta">
+                                <select class="energy-select" data-index="1">
+                                    <option value="low">🟢 Low Energy</option>
+                                    <option value="medium" selected>🟡 Medium Energy</option>
+                                    <option value="high">🔴 High Energy</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="priority-actions">
+                            <button class="btn-icon btn-focus" onclick="focusOnPriority(1)" title="Focus on this">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                    <path d="M12,1v6M12,17v6M4.22,4.22l4.24,4.24M15.54,15.54l4.24,4.24M1,12h6M17,12h6M4.22,19.78l4.24-4.24M15.54,8.46l4.24-4.24"></path>
+                                </svg>
+                            </button>
+                            <div class="checkbox-container">
+                                <input type="checkbox" class="priority-checkbox" id="priority-1" data-index="1">
+                                <label for="priority-1" class="checkbox-label"></label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="priority-item" data-priority="3">
+                        <div class="priority-indicator">3</div>
+                        <div class="priority-content">
+                            <input type="text" class="priority-input" placeholder="Third priority..." data-index="2">
+                            <div class="priority-meta">
+                                <select class="energy-select" data-index="2">
+                                    <option value="low">🟢 Low Energy</option>
+                                    <option value="medium" selected>🟡 Medium Energy</option>
+                                    <option value="high">🔴 High Energy</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="priority-actions">
+                            <button class="btn-icon btn-focus" onclick="focusOnPriority(2)" title="Focus on this">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                    <path d="M12,1v6M12,17v6M4.22,4.22l4.24,4.24M15.54,15.54l4.24,4.24M1,12h6M17,12h6M4.22,19.78l4.24-4.24M15.54,8.46l4.24-4.24"></path>
+                                </svg>
+                            </button>
+                            <div class="checkbox-container">
+                                <input type="checkbox" class="priority-checkbox" id="priority-2" data-index="2">
+                                <label for="priority-2" class="checkbox-label"></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Task Management Grid -->
+            <div class="content-grid">
+                <!-- Task Backlog -->
+                <section class="content-section task-section">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <span class="section-icon">✅</span>
+                            Task Backlog
+                        </h2>
+                        <div class="task-counter" id="taskCounter">0 tasks</div>
+                    </div>
+                    
+                    <div class="task-input-container">
+                        <input 
+                            type="text" 
+                            id="taskInput" 
+                            class="task-input" 
+                            placeholder="What needs to be done?"
+                            aria-label="Add new task"
+                        >
+                        <button class="btn btn-primary" onclick="addTask()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                            Add
+                        </button>
+                    </div>
+
+                    <div class="task-filters">
+                        <button class="filter-btn active" data-filter="all" onclick="filterTasks('all')">All</button>
+                        <button class="filter-btn" data-filter="active" onclick="filterTasks('active')">Active</button>
+                        <button class="filter-btn" data-filter="completed" onclick="filterTasks('completed')">Done</button>
+                        <button class="filter-btn" data-filter="energy" onclick="filterByEnergy()">My Energy</button>
+                    </div>
+                    
+                    <div class="tasks-container" id="tasksContainer">
+                        <div class="empty-state" id="tasksEmptyState">
+                            <div class="empty-icon">📝</div>
+                            <div class="empty-title">No tasks yet</div>
+                            <div class="empty-description">Add your first task above to get started</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Time Blocks -->
+                <section class="content-section timeblock-section">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <span class="section-icon">⏰</span>
+                            Time Blocks
+                        </h2>
+                        <button class="btn btn-outline btn-sm" onclick="addTimeBlock()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12,6 12,12 16,14"></polyline>
+                            </svg>
+                            Add Block
+                        </button>
+                    </div>
+                    
+                    <div class="timeblocks-container" id="timeblocksContainer">
+                        <div class="empty-state" id="timeblocksEmptyState">
+                            <div class="empty-icon">⏰</div>
+                            <div class="empty-title">No time blocks</div>
+                            <div class="empty-description">Schedule focused work periods</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Captured Thoughts -->
+                <section class="content-section thoughts-section">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <span class="section-icon">💭</span>
+                            Captured Thoughts
+                        </h2>
+                        <button class="btn btn-ghost btn-sm" onclick="clearThoughts()" id="clearThoughtsBtn" disabled>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="3,6 5,6 21,6"></polyline>
+                                <path d="M19,6v14a2,2 0,0,1-2,2H7a2,2 0,0,1-2-2V6M8,6V4a2,2 0,0,1,2-2h4a2,2 0,0,1,2,2v2"></path>
+                            </svg>
+                            Clear
+                        </button>
+                    </div>
+                    
+                    <div class="thoughts-container" id="thoughtsContainer">
+                        <div class="empty-state" id="thoughtsEmptyState">
+                            <div class="empty-icon">💭</div>
+                            <div class="empty-title">No thoughts captured</div>
+                            <div class="empty-description">Press 'D' to quickly capture distracting thoughts</div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <!-- Settings Panel (Slide-out) -->
+        <aside id="settingsPanel" class="settings-panel">
+            <div class="settings-header">
+                <h2 class="settings-title">
+                    <span class="section-icon">⚙️</span>
+                    Settings & Personalization
+                </h2>
+                <button class="btn-icon" onclick="toggleSettings()" aria-label="Close settings">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="settings-content">
+                <!-- Theme Selection -->
+                <div class="settings-group">
+                    <h3 class="settings-group-title">🎨 Visual Theme</h3>
+                    <div class="theme-grid" id="themeGrid">
+                        <div class="theme-option" data-theme="focus">
+                            <div class="theme-preview theme-preview-focus"></div>
+                            <div class="theme-name">Focus</div>
+                        </div>
+                        <div class="theme-option" data-theme="calm">
+                            <div class="theme-preview theme-preview-calm"></div>
+                            <div class="theme-name">Calm</div>
+                        </div>
+                        <div class="theme-option" data-theme="energy">
+                            <div class="theme-preview theme-preview-energy"></div>
+                            <div class="theme-name">Energy</div>
+                        </div>
+                        <div class="theme-option" data-theme="dark">
+                            <div class="theme-preview theme-preview-dark"></div>
+                            <div class="theme-name">Dark</div>
+                        </div>
+                        <div class="theme-option" data-theme="high-contrast">
+                            <div class="theme-preview theme-preview-contrast"></div>
+                            <div class="theme-name">High Contrast</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Accessibility Options -->
+                <div class="settings-group">
+                    <h3 class="settings-group-title">♿ Accessibility</h3>
+                    <div class="settings-options">
+                        <label class="settings-option">
+                            <input type="checkbox" id="reducedMotion">
+                            <span class="option-text">Reduce animations</span>
+                            <span class="option-description">Helpful for sensory sensitivity</span>
+                        </label>
+                        <label class="settings-option">
+                            <input type="checkbox" id="keyboardHints">
+                            <span class="option-text">Show keyboard shortcuts</span>
+                            <span class="option-description">Display hotkeys on hover</span>
+                        </label>
+                        <label class="settings-option">
+                            <input type="checkbox" id="soundEffects">
+                            <span class="option-text">Sound feedback</span>
+                            <span class="option-description">Audio cues for actions</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Focus & Break Settings -->
+                <div class="settings-group">
+                    <h3 class="settings-group-title">⏰ Time Management</h3>
+                    <div class="settings-options">
+                        <div class="settings-option">
+                            <span class="option-text">Default focus duration</span>
+                            <select id="focusDuration">
+                                <option value="15">15 minutes</option>
+                                <option value="25" selected>25 minutes</option>
+                                <option value="45">45 minutes</option>
+                                <option value="60">1 hour</option>
+                                <option value="90">90 minutes</option>
+                            </select>
+                        </div>
+                        <div class="settings-option">
+                            <span class="option-text">Break reminder interval</span>
+                            <select id="breakInterval">
+                                <option value="30">30 minutes</option>
+                                <option value="45" selected>45 minutes</option>
+                                <option value="60">1 hour</option>
+                                <option value="90">90 minutes</option>
+                                <option value="120">2 hours</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Data Management -->
+                <div class="settings-group">
+                    <h3 class="settings-group-title">💾 Data Management</h3>
+                    <div class="settings-actions">
+                        <button class="btn btn-outline" onclick="exportData()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21,15v4a2,2 0,0,1-2,2H5a2,2 0,0,1-2-2V15"></path>
+                                <polyline points="7,10 12,15 17,10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                            </svg>
+                            Export Backup
+                        </button>
+                        <label class="btn btn-outline">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21,15v4a2,2 0,0,1-2,2H5a2,2 0,0,1-2-2V15"></path>
+                                <polyline points="17,8 12,3 7,8"></polyline>
+                                <line x1="12" y1="3" x2="12" y2="15"></line>
+                            </svg>
+                            Import Backup
+                            <input type="file" accept=".json" onchange="importData(event)" style="display: none;">
+                        </label>
+                        <button class="btn btn-danger" onclick="resetAllData()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="3,6 5,6 21,6"></polyline>
+                                <path d="M19,6v14a2,2 0,0,1-2,2H7a2,2 0,0,1-2-2V6M8,6V4a2,2 0,0,1,2-2h4a2,2 0,0,1,2,2v2"></path>
+                                <line x1="10" y1="11" x2="10" y2="17"></line>
+                                <line x1="14" y1="11" x2="14" y2="17"></line>
+                            </svg>
+                            Reset All Data
+                        </button>
+                    </div>
+                </div>
+
+                <!-- About & Help -->
+                <div class="settings-group">
+                    <h3 class="settings-group-title">❓ Help & Support</h3>
+                    <div class="settings-actions">
+                        <button class="btn btn-ghost" onclick="toggleShortcutsOverlay()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                                <line x1="8" y1="21" x2="16" y2="21"></line>
+                                <line x1="12" y1="17" x2="12" y2="21"></line>
+                            </svg>
+                            Keyboard Shortcuts
+                        </button>
+                        <button class="btn btn-ghost" onclick="showAbout()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <path d="M9.09,9a3,3 0,0,1,5.83,1c0,2-3,3-3,3"></path>
+                                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                            </svg>
+                            About & Tips
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Bottom Navigation for Quick Access -->
+    <nav class="bottom-nav" id="bottomNav">
+        <button class="nav-item" onclick="toggleSettings()" aria-label="Settings">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M19.4,15a1.65,1.65 0,0,0,.33,1.82L20.94,18a2,2 0,0,1,0,2.83L19.83,22a2,2 0,0,1-2.83,0l-1.25-1.25a1.65,1.65 0,0,0-1.82-.33,1.65,1.65 0,0,0-1,1.51V23a2,2 0,0,1-2,2H9a2,2 0,0,1-2-2V21.92a1.65,1.65 0,0,0-1.51-1,1.65,1.65 0,0,0-1.82.33L2.42,22.58a2,2 0,0,1-2.83,0L-1.58,21.42a2,2 0,0,1,0-2.83L0.67,17.34a1.65,1.65 0,0,0,.33-1.82,1.65,1.65 0,0,0-1.51-1H-1.42a2,2 0,0,1-2-2V11a2,2 0,0,1,2-2H0.08a1.65,1.65 0,0,0,1-1.51,1.65,1.65 0,0,0-.33-1.82L-0.5,4.42a2,2 0,0,1,0-2.83L0.58,0.42a2,2 0,0,1,2.83,0L4.66,1.67a1.65,1.65 0,0,0,1.82.33,1.65,1.65 0,0,0,1-1.51V-1.42a2,2 0,0,1,2-2H11a2,2 0,0,1,2,2V0.08a1.65,1.65 0,0,0,1.51,1,1.65,1.65 0,0,0,1.82-.33L17.58,0.42a2,2 0,0,1,2.83,0L21.58,1.58a2,2 0,0,1,0,2.83L20.33,5.66a1.65,1.65 0,0,0-.33,1.82,1.65,1.65 0,0,0,1.51,1H22.58a2,2 0,0,1,2,2V12a2,2 0,0,1-2,2H21.49a1.65,1.65 0,0,0-1,1.51Z"></path>
+            </svg>
+            <span class="nav-label">Settings</span>
+        </button>
+        
+        <button class="nav-item" onclick="viewAnalytics()" aria-label="Analytics">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="20" x2="18" y2="10"></line>
+                <line x1="12" y1="20" x2="12" y2="4"></line>
+                <line x1="6" y1="20" x2="6" y2="14"></line>
+            </svg>
+            <span class="nav-label">Insights</span>
+        </button>
+        
+        <button class="nav-item nav-main" onclick="toggleCommandPalette()" aria-label="Command palette">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="21 21l-4.35-4.35"></path>
+            </svg>
+        </button>
+        
+        <button class="nav-item" onclick="enterFocusMode()" aria-label="Focus mode">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M12,1v6M12,17v6M4.22,4.22l4.24,4.24M15.54,15.54l4.24,4.24M1,12h6M17,12h6M4.22,19.78l4.24-4.24M15.54,8.46l4.24-4.24"></path>
+            </svg>
+            <span class="nav-label">Focus</span>
+        </button>
+        
+        <button class="nav-item" onclick="enterCalmMode()" aria-label="Overwhelm help">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M8,21h8a5,5 0,0,0,5-5V8a3,3 0,0,0-3-3H6A3,3 0,0,0,3,8v8A5,5 0,0,0,8,21Z"></path>
+                <path d="M12,9a3,3 0,1,0,3,3"></path>
+            </svg>
+            <span class="nav-label">Calm</span>
+        </button>
+    </nav>
+
+    <!-- Analytics Modal -->
+    <div id="analyticsModal" class="modal" role="dialog" aria-labelledby="analytics-title">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="analytics-title">📊 Your Productivity Insights</h2>
+                <button class="btn-icon" onclick="closeAnalytics()" aria-label="Close analytics">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div id="analyticsContent" class="analytics-content"></div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="app.js"></script>
+    
+    <!-- Service Worker for PWA -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+                .then(registration => console.log('SW registered:', registration))
+                .catch(error => console.log('SW registration failed:', error));
+        }
+    </script>
+</body>
+</html>

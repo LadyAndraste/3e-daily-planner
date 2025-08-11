@@ -1,0 +1,18 @@
+{
+  "name": "3e Daily Command Center",
+  "short_name": "3e Planner",
+  "description": "Daily planner optimized for gifted, ADHD, and ASD minds",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "icons": [
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTI4IiBoZWlnaHQ9IjEyOCIgdmlld0JveD0iMCAwIDEyOCAxMjgiIGZpbGw9IiMyNTYzZWIiPjxnPjxyZWN0IHg9IjE2IiB5PSIxNiIgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiByeD0iMTIiIGZpbGw9IiMyNTYzZWIiLz48L2c+PC9zdmc+",
+      "sizes": "128x128",
+      "type": "image/svg+xml"
+    }
+  ],
+  "categories": ["productivity", "tools"],
+  "lang": "en"
+}
