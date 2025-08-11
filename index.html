@@ -253,7 +253,14 @@
                 </div>
                 
                 <div class="header-status">
-                    <div class="energy-indicator" id="energyIndicator" onclick="cycleEnergyLevel()" role="button" aria-label="Current energy level" tabindex="0">
+                    <div class="energy-selector-container">
+                        <select id="energySelector" class="energy-selector" onchange="setEnergyLevel(this.value)">
+                            <option value="low">🟢 Low Energy</option>
+                            <option value="medium" selected>🟡 Medium Energy</option>
+                            <option value="high">🔴 High Energy</option>
+                            <option value="crisis">🆘 Overwhelmed</option>
+                        </select>
+                    </div>
                         <div class="energy-icon" id="energyIcon">⚡</div>
                         <div class="energy-text">
                             <div class="energy-level" id="energyLevel">Medium</div>
