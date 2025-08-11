@@ -1190,7 +1190,30 @@ p {
   background: var(--primary-light);
   color: var(--primary-dark);
 }
+.priority-item {
+  /* ... bestaande regels ... */
+  min-width: 0; /* Belangrijk voor text wrapping */
+  word-wrap: break-word;
+}
 
+.priority-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.priority-input {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.priority-actions {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
 /* ===== Task Section ===== */
 
 .task-section {
