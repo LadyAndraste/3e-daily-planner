@@ -3178,3 +3178,53 @@ html, body {
     touch-action: manipulation !important;
   }
 }
+/* ===== PRIORITY VISUAL STATE FIXES ===== */
+
+/* Completed priority visual feedback */
+.priority-item.completed {
+  background: var(--success-light) !important;
+  border-color: var(--success) !important;
+  opacity: 0.9 !important;
+}
+
+.priority-item.completed .priority-input {
+  color: var(--success-dark) !important;
+  text-decoration: line-through !important;
+}
+
+.priority-item.completed .priority-indicator {
+  background: var(--success) !important;
+  color: var(--text-inverse) !important;
+}
+
+/* Stats counter animation */
+.stat-value {
+  transition: all 0.3s ease !important;
+}
+
+.stat-value.updated {
+  transform: scale(1.1) !important;
+  color: var(--success) !important;
+}
+
+/* Checkbox states in neon theme */
+.theme-neon .checkbox-container input:checked ~ .checkbox-label {
+  background: #00ff00 !important;
+  border-color: #00ff00 !important;
+  box-shadow: 0 0 10px #00ff00 !important;
+}
+
+.theme-neon .checkbox-container input:checked ~ .checkbox-label::after {
+  border-color: #000000 !important;
+}
+
+/* Priority item hover in neon theme */
+.theme-neon .priority-item:hover {
+  box-shadow: 0 0 15px currentColor !important;
+}
+
+.theme-neon .priority-item.completed {
+  background: rgba(0, 255, 0, 0.1) !important;
+  border-color: #00ff00 !important;
+  box-shadow: 0 0 20px rgba(0, 255, 0, 0.3) !important;
+}
