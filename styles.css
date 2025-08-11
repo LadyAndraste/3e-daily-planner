@@ -2247,7 +2247,49 @@ p {
   background: #ffffff;
   border: 1px solid #000000;
 }
+.theme-preview-mario {
+  background: #5c94fc;
+  border: 2px solid #000000;
+}
 
+.theme-preview-mario::before {
+  background: #ff0000;
+}
+
+.theme-preview-mario::after {
+  background: #ffd700;
+  border: 1px solid #000000;
+}
+
+.theme-preview-vibrant {
+  background: #fff8e1;
+}
+
+.theme-preview-vibrant::before {
+  background: linear-gradient(90deg, #e91e63, #ff9800);
+}
+
+.theme-preview-vibrant::after {
+  background: #ffffff;
+  border: 1px solid #ff6f00;
+}
+
+.theme-preview-neon {
+  background: #0a0a0a;
+  border: 1px solid #00ffff;
+  box-shadow: 0 0 5px #00ffff;
+}
+
+.theme-preview-neon::before {
+  background: linear-gradient(90deg, #ff0080, #00ffff);
+  box-shadow: 0 0 5px currentColor;
+}
+
+.theme-preview-neon::after {
+  background: #1a1a1a;
+  border: 1px solid #ff00ff;
+  box-shadow: 0 0 3px #ff00ff;
+}
 .theme-name {
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
